@@ -47,8 +47,8 @@ public class MouseGestures {
     	    double minYOfCenter = gameContext.playTable.getCenter().getBoundsInParent().getMinY();
     	    double minXOfPilePane = gameContext.pilePane.getBoundsInParent().getMinX();
     	    double minYOfPilePane = gameContext.pilePane.getBoundsInParent().getMinY();
-    	    double minXOfNode = node.getBoundsInParent().getMinX();
-    	    double minYOfNode = node.getBoundsInParent().getMinY();
+    	    double minXOfNode = gameContext.pileTop.imageView.getBoundsInParent().getMinX();
+    	    double minYOfNode = gameContext.pileTop.imageView.getBoundsInParent().getMinY();
     	    
     	    double X = e.getSceneX() - minXOfPlayTable - minXOfCenter - minXOfPilePane - minXOfNode;
     	    double Y = e.getSceneY() - minYOfPlayTable - minYOfCenter - minYOfPilePane - minYOfNode;
