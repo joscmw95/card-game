@@ -5,8 +5,8 @@ import java.util.List;
 import javafx.scene.layout.HBox;
 
 public class Player {
-	List<Card> hand = new ArrayList<Card>();
-	HBox handGUI = new HBox(5);
+	private List<Card> hand = new ArrayList<Card>();
+	private HBox handGUI = new HBox(5);
 	
 	Player() {
 		handGUI.setStyle("-fx-alignment: center;");
@@ -24,11 +24,13 @@ public class Player {
 	}
 	
 	void playCard(Card card) {
-		card.action();
+		// remove card from hand
 		hand.remove(card);
-		
 		// update hand GUI
 		handGUI.getChildren().remove(card.imageView);
+		
+		card.action();
+		
 	}
 	
 	boolean isPlayable(Card pileTop) {
@@ -46,5 +48,21 @@ public class Player {
 			total+=card.getScore();
 		}
 		return total;
+	}
+
+	public HBox getHandGUI() {
+		return handGUI;
+	}
+
+	public void setHandGUI(HBox handGUI) {
+		this.handGUI = handGUI;
+	}
+
+	public List<Card> getHand() {
+		return hand;
+	}
+
+	public void setHand(List<Card> hand) {
+		this.hand = hand;
 	}
 }

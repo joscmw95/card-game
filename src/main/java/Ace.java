@@ -10,8 +10,16 @@ public class Ace extends Card {
 	}
 
 	// By default, nominate original suit
-	String nominatedSuit = this.suit;
+	private String nominatedSuit = this.suit;
 	
+	public String getNominatedSuit() {
+		return nominatedSuit;
+	}
+
+	public void setNominatedSuit(String nominatedSuit) {
+		this.nominatedSuit = nominatedSuit;
+	}
+
 	@Override 
 	void action() {
 		final String [] arrayData = {"Clubs", "Diamonds", "Hearts", "Spades"};

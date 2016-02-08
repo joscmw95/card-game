@@ -5,17 +5,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class Card implements Comparable<Card>{
-	IGame iGame;
-	ImageView imageView = new ImageView();;
-	String suit;
-	String rank;
+	protected IGame iGame;
+	protected ImageView imageView = new ImageView();;
+	protected String suit;
+	protected String rank;
 	
 	// Constructor
 	Card(String suit, String rank, IGame iGame) {
+		String fileName = "resources/" + (rank + "_of_" + suit + ".png").toLowerCase();
 		this.suit = suit;
 		this.rank = rank;
 		this.iGame = iGame;
-		String fileName = "resources/" + (rank + "_of_" + suit + ".png").toLowerCase();
 		this.imageView.setImage(new Image(getClass().getResource(fileName).toExternalForm()));
 		this.imageView.setFitWidth(150);
 		this.imageView.setPreserveRatio(true);

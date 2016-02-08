@@ -22,9 +22,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 public class Game extends Application implements IGame {
+	private static final String[] suits = {"Diamonds", "Clubs", "Hearts", "Spades"};
+	private static final String[] ranks = {"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"};
 	final ObservableList<String> gameLogs = FXCollections.observableArrayList();
 	final ListView<String> logList = new ListView<String>(gameLogs);
 	final ImageView cardBack = new ImageView();
+	final Stage gameStage = new Stage();
 	final StackPane pilePane = new StackPane();
 	final BorderPane playTable = new BorderPane();
 	final HBox mainLayout = new HBox();
@@ -32,22 +35,87 @@ public class Game extends Application implements IGame {
 	final Label playerLabel = new Label();
 	final Alert confirmationDialog = new Alert(AlertType.CONFIRMATION);
 	final Alert errorDialog = new Alert(AlertType.INFORMATION);
-	Stage gameStage = new Stage();
+	final List<Card> stock = new ArrayList<Card>();
+	final List<Card> pile = new ArrayList<Card>();
 	Player[] players;
 	Player currentPlayer;
-	List<Card> stock = new ArrayList<Card>();
-	List<Card> pile = new ArrayList<Card>();
 	Card pileTop;
+	MouseGestures mg = new MouseGestures(this);
 	int playerIndex=0, counter=0, playerNo;
 	boolean clockwiseDirection = true;
-	static final String[] suits = {"Diamonds", "Clubs", "Hearts", "Spades"};
-	static final String[] ranks = {"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"};
 
 	public static void main(String[] args) {
 		// launch application
 		launch(args);
 	}
 	
+	void startGame(int numberOfPlayers, Color backgroundColor) {
+		playerNo = numberOfPlayers;
+		// load all cards into a list
+	    shuffle();
+	    
+	    players = new Player[playerNo];
+		// for each player
+		for(int i=0; i<playerNo; i++) {
+			players[i] = new Player();
+			// add 5 cards
+			for(int j=0; j<5; j++) {
+				Card card = stock.remove(stock.size()-1);
+				players[i].addCard(card);
+				// attach mouse events on card
+				mg.makeDraggable(card);
+			}
+		}
+		// initialize first player
+		currentPlayer = players[playerIndex];
+		
+		// get one card from stock to start the discard pile
+		pile.add(stock.remove(stock.size()-1));
+		pileTop = pile.get(0);
+		
+		// defining UI components
+	    StackPane stockPane = new StackPane();
+	    stockPane.getChildren().add(cardBack);
+	    
+	    pilePane.getChildren().add(pileTop.imageView);
+	    
+	    HBox center = new HBox(3);
+	    center.getChildren().addAll(stockPane, pilePane);
+	    center.setStyle("-fx-alignment: center;");
+	    
+	    HBox top = new HBox();
+	    top.getChildren().add(playerLabel);
+	    
+	    logList.setPrefHeight(900);
+	    VBox gameLogBox = new VBox();
+	    gameLogBox.setPrefWidth(400);
+	    gameLogBox.getChildren().addAll(gameLogLabel, logList);
+	    gameLogBox.setStyle("-fx-padding: 10;");
+	    
+	    playTable.setTop(top);
+	    playTable.setCenter(center);
+	    playTable.setBottom(currentPlayer.getHandGUI());
+	    playTable.setPrefWidth(950);
+	    playTable.setStyle("-fx-padding: 25");
+	    
+	    mainLayout.getChildren().addAll(playTable, gameLogBox);
+	    mainLayout.setStyle("-fx-alignment: center");
+	    mainLayout.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
+	    mainLayout.setPrefHeight(1000);
+	    mainLayout.setPrefWidth(1420);
+		
+	    playerLabel.setTextFill(backgroundColor.invert());
+	    gameLogLabel.setTextFill(backgroundColor.invert());
+	    
+	    showMessage("The game has started.");
+	    Scene scene = new Scene(mainLayout);
+	    gameStage.setTitle("The Card Game");
+		gameStage.setScene(scene);
+		gameStage.setMaximized(true);
+		gameStage.show();
+		getUserSelection();
+	}
+
 	void shuffle() {
 		if (pile.size() > 0) {
 			for(int i=pile.size()-2; i>=0; i--) {
@@ -77,76 +145,6 @@ public class Game extends Application implements IGame {
 			// shuffle
 			Collections.shuffle(stock);
 		}
-	}
-	
-	void startGame(int numberOfPlayers, Color backgroundColor) {
-		playerNo = numberOfPlayers;
-		// load all cards into a list
-        shuffle();
-        
-        players = new Player[playerNo];
-		// for each player
-		for(int i=0; i<playerNo; i++) {
-			
-			players[i] = new Player();
-			// add 5 cards
-			for(int j=0; j<5; j++) {
-				Card card = stock.remove(stock.size()-1);
-				players[i].addCard(card);
-				// attach onClick listener to card
-				card.imageView.setOnMouseClicked(e -> UserSelectionDialog(card));
-			}
-		}
-		
-		currentPlayer = players[playerIndex];
-		
-		// get one card from stock to start the discard pile
-		pile.add(stock.remove(stock.size()-1));
-		pileTop = pile.get(0);
-		
-		// initialize UI components
-        StackPane stockPane = new StackPane();
-        stockPane.getChildren().add(cardBack);
-        
-        pilePane.getChildren().add(pileTop.imageView);
-        
-        HBox center = new HBox(3);
-        center.setCenterShape(true);
-        center.getChildren().addAll(stockPane, pilePane);
-        center.setStyle("-fx-alignment: center");
-        
-        HBox top = new HBox();
-        top.getChildren().add(playerLabel);
-        
-        logList.setPrefHeight(900);
-        VBox gameLogBox = new VBox();
-        gameLogBox.setPrefWidth(400);
-        gameLogBox.getChildren().addAll(gameLogLabel, logList);
-        gameLogBox.setStyle("-fx-padding: 10;");
-        
-        playTable.setTop(top);
-        playTable.setCenter(center);
-        playTable.setBottom(currentPlayer.handGUI);
-        playTable.setPrefWidth(950);
-        playTable.setStyle("-fx-padding: 25");
-        
-        mainLayout.getChildren().addAll(playTable, gameLogBox);
-        mainLayout.setStyle("-fx-alignment: center");
-        mainLayout.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
-        mainLayout.setPrefHeight(1000);
-        mainLayout.setPrefWidth(1420);
-		
-        playerLabel.setTextFill(backgroundColor.invert());
-        gameLogLabel.setTextFill(backgroundColor.invert());
-        
-        showMessage("The game has started.");
-		
-        Scene scene = new Scene(mainLayout);
-        gameStage.setTitle("The Card Game");
-		gameStage.setScene(scene);
-		gameStage.setMaximized(true);
-		gameStage.show();
-		getUserSelection();
 	}
 	
 	void nextPlayer() {
@@ -186,43 +184,14 @@ public class Game extends Application implements IGame {
 			Game game = new Game();
 			try {
 				game.start(new Stage());
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		gameStage.close();
 	}
-	
-	void UserSelectionDialog(Card playerCard) {
-		confirmationDialog.setTitle("Confirmation Dialog");
-		confirmationDialog.setHeaderText("You are about to play the " + playerCard + ".");
-		confirmationDialog.setContentText("Confirm playing this card?");
-		confirmationDialog.getButtonTypes().setAll(ButtonType.YES, ButtonType.CANCEL);
-		Optional<ButtonType> result = confirmationDialog.showAndWait();
-		if (result.get() == ButtonType.YES){
-			if (pileTop.match(playerCard)) {
-				showMessage("Player " + (playerIndex+1) + " discarded " + playerCard);
-				currentPlayer.playCard(playerCard);
-				pile.add(playerCard);
-				pileTop = pile.get(pile.size()-1);
-				pilePane.getChildren().add(pileTop.imageView);
-				
-				// end game if player's hand is empty
-				if (currentPlayer.hand.isEmpty()) end();
-				else {
-					nextPlayer();
-					getUserSelection();
-				}
-			}
-			else {
-				errorDialog.setTitle("Message");
-				errorDialog.setHeaderText("Cannot play this card.");
-				errorDialog.setContentText("Your card does not match the rank and suit.");
-				errorDialog.showAndWait();
-			}
-		}
-	}
-		
+    
 	@Override
 	public void reverse() {
 		if (clockwiseDirection == true) {
@@ -234,6 +203,8 @@ public class Game extends Application implements IGame {
 
 	@Override
 	public void skipTurn() {
+		// check if hand is empty before skipping
+		if (currentPlayer.getHand().isEmpty()) end();
 		nextPlayer();
 	}
 
@@ -243,20 +214,21 @@ public class Game extends Application implements IGame {
 		playerLabel.setText("Player " + (playerIndex+1));
 		if (currentPlayer.isPlayable(pileTop)) {
 			counter=0;
-			playTable.setBottom(currentPlayer.handGUI);
+			playTable.setBottom(currentPlayer.getHandGUI());
 		} else {
 			counter++;
-			if (currentPlayer.hand.size() < 5) {
+			if (currentPlayer.getHand().size() < 5) {
 				Card drawCard = stock.remove(stock.size()-1);
 				showMessage("Player " + (playerIndex+1) + " draws a card.");
 				currentPlayer.addCard(drawCard);
-				drawCard.imageView.setOnMouseClicked(e -> UserSelectionDialog(drawCard));
+				// attach mouse event to card
+				mg.makeDraggable(drawCard);
 				if (stock.isEmpty()) {
 					showMessage("Stock pile is exhausted, shuffling discard pile..");
 					shuffle();
 				}
 			}
-			playTable.setBottom(currentPlayer.handGUI);
+			playTable.setBottom(currentPlayer.getHandGUI());
 			showMessage("Player " + (playerIndex+1) + " passes the round.");
 			if (counter == playerNo) end();
 			else {
@@ -292,7 +264,7 @@ public class Game extends Application implements IGame {
 		Label labelColor = new Label("Background Color:");
 		labelColor.setStyle("-fx-font: 30 Arial; -fx-text-fill: white");
 		ColorPicker colorPicker = new ColorPicker();
-		colorPicker.setValue(Color.MAROON);
+		colorPicker.setValue(Color.DARKSLATEGREY);
 		Button buttonStart = new Button("START GAME");
 		buttonStart.setOnAction(e -> {
 			startGame(choiceBox.getValue(), colorPicker.getValue());
