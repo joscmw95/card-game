@@ -30,12 +30,12 @@ public class Ace extends Card {
 		ChoiceDialog<String> dialog = new ChoiceDialog<String>(dialogData.get(0), dialogData);
 		dialog.setTitle("Message");
 		dialog.setHeaderText("Select suit to nominate");
-		dialog.setContentText("Cancel for default suit: " + this.suit + "\n");
+		dialog.setContentText("Cancel for default suit: " + this.suit);
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
 			this.nominatedSuit = result.get();
 		}
-		iGame.showMessage("An Ace is played!");
+		iGame.showMessage("An Ace is played! The next card played should follow the nominated suit.");
 		iGame.showMessage(this.nominatedSuit + " is nominated.");
 	}
 	

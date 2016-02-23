@@ -37,10 +37,10 @@ public class Game extends Application implements IGame {
 	final Alert errorDialog = new Alert(AlertType.INFORMATION);
 	final List<Card> stock = new ArrayList<Card>();
 	final List<Card> pile = new ArrayList<Card>();
+	final MouseGestures mg = new MouseGestures(this);
 	Player[] players;
 	Player currentPlayer;
 	Card pileTop;
-	MouseGestures mg = new MouseGestures(this);
 	int playerIndex=0, counter=0, playerNo;
 	boolean clockwiseDirection = true;
 
@@ -88,7 +88,7 @@ public class Game extends Application implements IGame {
 	    
 	    logList.setPrefHeight(900);
 	    VBox gameLogBox = new VBox();
-	    gameLogBox.setPrefWidth(400);
+	    gameLogBox.setPrefWidth(430);
 	    gameLogBox.getChildren().addAll(gameLogLabel, logList);
 	    gameLogBox.setStyle("-fx-padding: 10;");
 	    
@@ -118,6 +118,7 @@ public class Game extends Application implements IGame {
 
 	void shuffle() {
 		if (pile.size() > 0) {
+			// stock pile exhausted, put all cards from discard pile except top into stock and shuffle
 			for(int i=pile.size()-2; i>=0; i--) {
 				stock.add(pile.remove(i));
 			}
@@ -133,6 +134,9 @@ public class Game extends Application implements IGame {
 						break;
 					case "Queen":
 						stock.add(new Queen(suit, rank, this));
+						break;
+					case "King":
+						stock.add(new King(suit, rank, this));
 						break;
 					case "8":
 						stock.add(new Eight(suit, rank, this));
@@ -209,6 +213,38 @@ public class Game extends Application implements IGame {
 	}
 
 	@Override
+	public void drawCard(boolean trumpMode) {
+		Player playerTemp = null;
+		int playerIndexTemp = 0;
+		if (trumpMode) {
+			playerTemp = currentPlayer;
+			playerIndexTemp = playerIndex;
+			nextPlayer();
+		}
+		// draw card if hand has less than 5 cards
+		if (currentPlayer.getHand().size() < 5) {
+			Card drawCard = stock.remove(stock.size()-1);
+			showMessage("Player " + (playerIndex+1) + " draws a card.");
+			currentPlayer.addCard(drawCard);
+			// attach mouse event to card
+			mg.makeDraggable(drawCard);
+			// check if stock pile is exhausted
+			if (stock.isEmpty()) {
+				showMessage("Stock pile is exhausted, shuffling discard pile..");
+				shuffle();
+			}
+		} else {
+			if (trumpMode) {
+				showMessage("Player " + (playerIndex+1) + " couldn't draw any more cards.");
+			}
+		}
+		if (trumpMode) {
+			currentPlayer = playerTemp;
+			playerIndex = playerIndexTemp;
+		}
+	}
+
+	@Override
 	public void getUserSelection() {
 		showMessage("It is Player " + (playerIndex+1) + "'s turn.");
 		playerLabel.setText("Player " + (playerIndex+1));
@@ -217,17 +253,8 @@ public class Game extends Application implements IGame {
 			playTable.setBottom(currentPlayer.getHandGUI());
 		} else {
 			counter++;
-			if (currentPlayer.getHand().size() < 5) {
-				Card drawCard = stock.remove(stock.size()-1);
-				showMessage("Player " + (playerIndex+1) + " draws a card.");
-				currentPlayer.addCard(drawCard);
-				// attach mouse event to card
-				mg.makeDraggable(drawCard);
-				if (stock.isEmpty()) {
-					showMessage("Stock pile is exhausted, shuffling discard pile..");
-					shuffle();
-				}
-			}
+			// call drawCard with trumpMode=false, trumpMode=true is used when a King is played.
+			drawCard(false);
 			playTable.setBottom(currentPlayer.getHandGUI());
 			showMessage("Player " + (playerIndex+1) + " passes the round.");
 			if (counter == playerNo) end();
@@ -241,6 +268,7 @@ public class Game extends Application implements IGame {
 	@Override
 	public void showMessage(String message) {
 		gameLogs.add(message);
+		logList.scrollTo(gameLogs.size()-1);
 	}
 
 	@Override
