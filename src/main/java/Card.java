@@ -90,10 +90,10 @@ public class Card implements Comparable<Card>{
 	
 	@Override
 	public int compareTo(Card card) {
-		if (this.rank.equals(card.rank)) {
-			return cardValue.get(this.suit) - cardValue.get(card.suit);
-		} else {
+		if (this.suit.equals(card.suit)) {
 			return cardValue.get(this.rank) - cardValue.get(card.rank);
+		} else {
+			return cardValue.get(this.suit) - cardValue.get(card.suit);
 		}
 	}
 }

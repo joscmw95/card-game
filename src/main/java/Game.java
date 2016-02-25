@@ -88,7 +88,7 @@ public class Game extends Application implements IGame {
 	    
 	    logList.setPrefHeight(900);
 	    VBox gameLogBox = new VBox();
-	    gameLogBox.setPrefWidth(430);
+	    gameLogBox.setPrefWidth(435);
 	    gameLogBox.getChildren().addAll(gameLogLabel, logList);
 	    gameLogBox.setStyle("-fx-padding: 10;");
 	    
@@ -102,7 +102,7 @@ public class Game extends Application implements IGame {
 	    mainLayout.setStyle("-fx-alignment: center");
 	    mainLayout.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
 	    mainLayout.setPrefHeight(1000);
-	    mainLayout.setPrefWidth(1420);
+	    mainLayout.setPrefWidth(1425);
 		
 	    playerLabel.setTextFill(backgroundColor.invert());
 	    gameLogLabel.setTextFill(backgroundColor.invert());

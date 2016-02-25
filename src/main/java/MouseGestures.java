@@ -55,7 +55,7 @@ public class MouseGestures {
     	    
     	    // try to play card if released in pileTop
     	    if (gameContext.pileTop.imageView.contains(X, Y)) {
-    	    	if (gameContext.pileTop.match(card)) {
+    	    	if (card instanceof Ace || gameContext.pileTop.match(card)) {
     	    		// detach all event handlers
     	    		node.setOnMouseEntered(null);
     	        	node.setOnMousePressed(null);

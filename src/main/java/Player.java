@@ -35,7 +35,7 @@ public class Player {
 	
 	boolean isPlayable(Card pileTop) {
 		for(Card card : hand) {
-			if (pileTop.match(card)) {
+			if (card instanceof Ace || pileTop.match(card)) {
 				return true;
 			}
 		}
