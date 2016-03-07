@@ -223,6 +223,7 @@ public class Game extends Application implements IGame {
 		}
 		// draw card if hand has less than 5 cards
 		if (currentPlayer.getHand().size() < 5) {
+			counter=0;
 			Card drawCard = stock.remove(stock.size()-1);
 			showMessage("Player " + (playerIndex+1) + " draws a card.");
 			currentPlayer.addCard(drawCard);
@@ -236,6 +237,9 @@ public class Game extends Application implements IGame {
 		} else {
 			if (trumpMode) {
 				showMessage("Player " + (playerIndex+1) + " couldn't draw any more cards.");
+			} else {
+				counter++;
+				showMessage("Player " + (playerIndex+1) + " passes the round.");
 			}
 		}
 		if (trumpMode) {
@@ -252,11 +256,9 @@ public class Game extends Application implements IGame {
 			counter=0;
 			playTable.setBottom(currentPlayer.getHandGUI());
 		} else {
-			counter++;
 			// call drawCard with trumpMode=false, trumpMode=true is used when a King is played.
 			drawCard(false);
 			playTable.setBottom(currentPlayer.getHandGUI());
-			showMessage("Player " + (playerIndex+1) + " passes the round.");
 			if (counter == playerNo) end();
 			else {
 				nextPlayer();
