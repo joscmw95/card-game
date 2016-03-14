@@ -28,9 +28,8 @@ public class Player {
 		hand.remove(card);
 		// update hand GUI
 		handGUI.getChildren().remove(card.imageView);
-		
-		card.action();
-		
+		// do card action if hand not empty
+		if (hand.size() > 0) card.action();
 	}
 	
 	boolean isPlayable(Card pileTop) {
