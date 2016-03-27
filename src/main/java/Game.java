@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -21,35 +22,91 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+/**
+ * The Class Game.
+ */
 public class Game extends Application implements IGame {
+	
+	/** The Constant suits. */
 	private static final String[] suits = {"Diamonds", "Clubs", "Hearts", "Spades"};
+	
+	/** The Constant ranks. */
 	private static final String[] ranks = {"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"};
+	
+	/** The game logs. */
 	final ObservableList<String> gameLogs = FXCollections.observableArrayList();
+	
+	/** The log list. */
 	final ListView<String> logList = new ListView<String>(gameLogs);
+	
+	/** The ImageView of the back of a card. */
 	final ImageView cardBack = new ImageView();
+	
+	/** The layout */
 	final Stage gameStage = new Stage();
 	final StackPane pilePane = new StackPane();
 	final BorderPane playTable = new BorderPane();
 	final HBox mainLayout = new HBox();
+	
+	/** The game log label. */
 	final Label gameLogLabel = new Label("Game Log:\n\n");
+	
+	/** The player label. */
 	final Label playerLabel = new Label();
+	
+	/** The confirmation dialog. */
 	final Alert confirmationDialog = new Alert(AlertType.CONFIRMATION);
+	
+	/** The error dialog. */
 	final Alert errorDialog = new Alert(AlertType.INFORMATION);
+	
+	/** The stock. */
 	final List<Card> stock = new ArrayList<Card>();
+	
+	/** The pile. */
 	final List<Card> pile = new ArrayList<Card>();
+	
+	/** The reference to MouseGestures. */
 	final MouseGestures mg = new MouseGestures(this);
+	
+	/** The array of Players. */
 	Player[] players;
+	
+	/** The current player. */
 	Player currentPlayer;
+	
+	/** The card at the top of the pile. */
 	Card pileTop;
-	int playerIndex=0, counter=0, playerNo;
+	
+	/** The current player no. */
+	int playerIndex=0;
+	
+	/** The counter to keep track of number of passes. */
+	int counter=0;
+	
+	/** The number of players. */
+	int playerNo;
+	
+	/** The boolean that states whether the play is in clockwise direction. */
 	boolean clockwiseDirection = true;
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 		// launch application
 		launch(args);
 	}
 	
-	void startGame(int numberOfPlayers, Color backgroundColor) {
+	/**
+	 * Starts the card game, setup number of players and background color of game stage according to the parameters.
+	 *
+	 * @param numberOfPlayers the number of players
+	 * @param backgroundColor the background color
+	 */
+	public void startGame(int numberOfPlayers, Color backgroundColor) {
 		playerNo = numberOfPlayers;
 		// load all cards into a list
 	    shuffle();
@@ -81,7 +138,7 @@ public class Game extends Application implements IGame {
 	    
 	    HBox center = new HBox(3);
 	    center.getChildren().addAll(stockPane, pilePane);
-	    center.setStyle("-fx-alignment: center;");
+	    center.setAlignment(Pos.CENTER);
 	    
 	    HBox top = new HBox();
 	    top.getChildren().add(playerLabel);
@@ -99,7 +156,7 @@ public class Game extends Application implements IGame {
 	    playTable.setStyle("-fx-padding: 25");
 	    
 	    mainLayout.getChildren().addAll(playTable, gameLogBox);
-	    mainLayout.setStyle("-fx-alignment: center");
+	    mainLayout.setAlignment(Pos.CENTER);
 	    mainLayout.setBackground(new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY)));
 	    mainLayout.setPrefHeight(1000);
 	    mainLayout.setPrefWidth(1425);
@@ -116,7 +173,11 @@ public class Game extends Application implements IGame {
 		getUserSelection();
 	}
 
-	void shuffle() {
+	/**
+	 * Initializes and shuffles the array list of the Card object using Collections.shuffle when its empty, 
+	 * subsequent calls to the function puts cards from discard pile (except top) into stock and shuffle. 
+	 */
+	public void shuffle() {
 		if (pile.size() > 0) {
 			// stock pile exhausted, put all cards from discard pile except top into stock and shuffle
 			for(int i=pile.size()-2; i>=0; i--) {
@@ -151,7 +212,10 @@ public class Game extends Application implements IGame {
 		}
 	}
 	
-	void nextPlayer() {
+	/**
+	 * Moves playerIndex to next player, increases the index with game direction is clockwise else decreases.
+	 */
+	public void nextPlayer() {
 		if (clockwiseDirection) {
 			playerIndex = (playerIndex+1)%playerNo;
 		} else {
@@ -161,7 +225,10 @@ public class Game extends Application implements IGame {
 		currentPlayer = players[playerIndex];
 	}
 	
-	void end() {
+	/**
+	 * Ends the game. Calculates total points of all players and display final result.
+	 */
+	public void endGame() {
 		String dialogString = "";
 		int min = players[0].getTotalPoints();
 		for(int i=1; i<playerNo; i++) {
@@ -196,6 +263,9 @@ public class Game extends Application implements IGame {
 		gameStage.close();
 	}
     
+	/* (non-Javadoc)
+	 * @see IGame#reverse()
+	 */
 	@Override
 	public void reverse() {
 		if (clockwiseDirection == true) {
@@ -205,13 +275,19 @@ public class Game extends Application implements IGame {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see IGame#skipTurn()
+	 */
 	@Override
 	public void skipTurn() {
 		// check if hand is empty before skipping
-		if (currentPlayer.getHand().isEmpty()) end();
+		if (currentPlayer.getHand().isEmpty()) endGame();
 		nextPlayer();
 	}
 
+	/* (non-Javadoc)
+	 * @see IGame#drawCard(boolean)
+	 */
 	@Override
 	public void drawCard(boolean trumpMode) {
 		Player playerTemp = null;
@@ -248,18 +324,21 @@ public class Game extends Application implements IGame {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see IGame#getUserSelection()
+	 */
 	@Override
 	public void getUserSelection() {
 		showMessage("It is Player " + (playerIndex+1) + "'s turn.");
 		playerLabel.setText("Player " + (playerIndex+1));
+		playTable.setBottom(currentPlayer.getHandGUI());
 		if (currentPlayer.isPlayable(pileTop)) {
+			// reset pass counter to 0
 			counter=0;
-			playTable.setBottom(currentPlayer.getHandGUI());
 		} else {
 			// call drawCard with trumpMode=false, trumpMode=true is used when a King is played.
 			drawCard(false);
-			playTable.setBottom(currentPlayer.getHandGUI());
-			if (counter == playerNo) end();
+			if (counter == playerNo) endGame();
 			else {
 				nextPlayer();
 				getUserSelection();
@@ -267,12 +346,18 @@ public class Game extends Application implements IGame {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see IGame#showMessage(java.lang.String)
+	 */
 	@Override
 	public void showMessage(String message) {
 		gameLogs.add(message);
 		logList.scrollTo(gameLogs.size()-1);
 	}
 
+	/* (non-Javadoc)
+	 * @see javafx.application.Application#start(javafx.stage.Stage)
+	 */
 	@Override
 	public void start(Stage startStage) throws Exception {
 		// initialization
@@ -307,11 +392,11 @@ public class Game extends Application implements IGame {
 		HBox innerLayout2 = new HBox(30);
 		HBox innerLayout3 = new HBox(30);
 		innerLayout1.getChildren().addAll(labelPlayerNo, choiceBox);
-		innerLayout1.setStyle("-fx-alignment: center-left;");
+		innerLayout1.setAlignment(Pos.CENTER_LEFT);
 		innerLayout2.getChildren().addAll(labelColor, colorPicker);
-		innerLayout2.setStyle("-fx-alignment: center-left;");
+		innerLayout2.setAlignment(Pos.CENTER_LEFT);
 		innerLayout3.getChildren().add(buttonStart);
-		innerLayout3.setStyle("-fx-alignment: center-left;");
+		innerLayout3.setAlignment(Pos.CENTER_LEFT);
 
 		outerLayout.getChildren().addAll(innerLayout1, innerLayout2, innerLayout3);
 		outerLayout.setPrefHeight(1000);
